@@ -129,6 +129,37 @@
       
       console.log(`총 ${allUsers.length}명의 사용자 정보를 가져왔습니다.`);
       console.log('사용자 목록:', allUsers.map(u => ({ uid: u.uid, name: u.name || u.displayName })));
+      
+      // 사용자가 없을 때 하위 컬렉션에서 사용자 UID 추출
+      if (allUsers.length === 0) {
+        console.log('상위 문서가 없습니다. 하위 컬렉션에서 사용자 UID를 찾습니다...');
+        
+        // users/{uid}/lotteryTickets에서 UID 추출
+        try {
+          const userLotteryRef = collection(db, 'users');
+          const userLotterySnapshot = await getDocs(userLotteryRef);
+          const uniqueUids = new Set();
+          
+          userLotterySnapshot.forEach(doc => {
+            uniqueUids.add(doc.id);
+          });
+          
+          console.log('발견된 사용자 UID들:', Array.from(uniqueUids));
+          
+          // UID로 기본 사용자 정보 생성
+          for (const uid of uniqueUids) {
+            allUsers.push({
+              uid: uid,
+              name: `사용자 ${uid.substring(0, 8)}`,
+              className: '미분반',
+              studentNumber: 0
+            });
+          }
+        } catch (error) {
+          console.error('하위 컬렉션에서 사용자 UID 추출 실패:', error);
+        }
+      }
+      
       return allUsers;
     } catch (error) {
       console.error('사용자 정보 가져오기 실패:', error);
@@ -137,6 +168,12 @@
         message: error.message,
         stack: error.stack
       });
+      
+      // 권한 오류인지 확인
+      if (error.code === 'permission-denied') {
+        console.error('❌ Firebase 권한 오류: 관리자가 users 컬렉션에 접근할 수 없습니다.');
+      }
+      
       throw error;
     }
   }

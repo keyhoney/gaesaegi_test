@@ -381,7 +381,7 @@
         
         // 공개 티켓 기록 저장 (선택적)
         try { 
-          await addDoc(collection(db, 'lottery', 'tickets'), ticket); 
+          await addDoc(collection(db, 'lottery', 'public', 'tickets'), ticket); 
         } catch (e) {
           console.warn('공개 티켓 저장 실패 (무시됨):', e);
         }
