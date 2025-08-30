@@ -35,9 +35,12 @@
   // 사용자 정보 표시 함수
   function renderUserInfo(user) {
     const className = user.className || user.class || '미분반';
-    const studentNumber = user.studentNumber || user.number || '미번호';
-    const name = user.name || user.displayName || '미이름';
+    const studentNumber = user.studentNumber || user.number || user.studentNo || '미번호';
+    const name = user.name || user.displayName || user.nickname || '미이름';
     const initials = name.substring(0, 2).toUpperCase();
+    
+    // 전화번호가 있으면 표시
+    const phoneInfo = user.phone ? `<div class="user-phone">${user.phone}</div>` : '';
     
     return `
       <div class="user-info">
@@ -45,6 +48,7 @@
         <div class="user-details">
           <div class="user-name">${name}</div>
           <div class="user-email">${className} ${studentNumber}번</div>
+          ${phoneInfo}
         </div>
       </div>
     `;
@@ -102,7 +106,7 @@
       console.log('사용자 정보 가져오기 시작...');
       
       const { db } = await window.getFirebaseAppAndDb();
-      const { collection, getDocs } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+      const { collection, getDocs, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
       
       console.log('Firebase DB 객체:', !!db);
       console.log('현재 관리자 UID:', currentUserUid);
@@ -185,14 +189,71 @@
           
           console.log('발견된 사용자 UID들:', Array.from(uniqueUids));
           
-          // UID로 기본 사용자 정보 생성
+          // UID로 사용자 정보 생성 및 실제 데이터 가져오기
           for (const uid of uniqueUids) {
-            allUsers.push({
-              uid: uid,
-              name: `사용자 ${uid.substring(0, 8)}`,
-              className: '미분반',
-              studentNumber: 0
-            });
+            try {
+              // 사용자 기본 정보 문서 시도
+              const userDocRef = doc(db, 'users', uid);
+              const userDocSnap = await getDoc(userDocRef);
+              
+              let userInfo = {
+                uid: uid,
+                name: `사용자 ${uid.substring(0, 8)}`,
+                className: '미분반',
+                studentNumber: 0
+              };
+              
+              if (userDocSnap.exists()) {
+                const userData = userDocSnap.data();
+                userInfo = {
+                  uid: uid,
+                  name: userData.name || userData.displayName || `사용자 ${uid.substring(0, 8)}`,
+                  className: userData.className || userData.class || '미분반',
+                  studentNumber: userData.studentNumber || userData.number || 0,
+                  email: userData.email || null
+                };
+              } else {
+                // 기본 정보가 없으면 profile 컬렉션에서 정보 찾기
+                console.log(`사용자 ${uid}의 기본 정보 문서가 없습니다. profile에서 정보를 찾습니다...`);
+                
+                try {
+                  const profileRef = doc(db, 'users', uid, 'profile', 'main');
+                  const profileSnap = await getDoc(profileRef);
+                  if (profileSnap.exists()) {
+                    const profileData = profileSnap.data();
+                    userInfo = {
+                      uid: uid,
+                      name: profileData.name || profileData.nickname || `사용자 ${uid.substring(0, 8)}`,
+                      className: profileData.classNo ? `${profileData.grade || ''}학년 ${profileData.classNo}반` : '미분반',
+                      studentNumber: profileData.studentNo || 0,
+                      grade: profileData.grade || null,
+                      classNo: profileData.classNo || null,
+                      nickname: profileData.nickname || null,
+                      phone: profileData.phone || null,
+                      updatedAt: profileData.updatedAt || null
+                    };
+                    console.log(`사용자 ${uid}의 프로필 정보 발견:`, userInfo);
+                  } else {
+                    console.log(`사용자 ${uid}의 프로필 정보도 없습니다. 기본 정보로 생성합니다.`);
+                  }
+                } catch (profileError) {
+                  console.log(`사용자 ${uid}의 프로필 정보 접근 실패:`, profileError.message);
+                }
+              }
+              
+              allUsers.push(userInfo);
+              console.log(`사용자 ${uid} 정보 생성 완료:`, userInfo);
+              
+            } catch (userError) {
+              console.error(`사용자 ${uid} 정보 생성 실패:`, userError);
+              // 기본 정보라도 추가
+              allUsers.push({
+                uid: uid,
+                name: `사용자 ${uid.substring(0, 8)}`,
+                className: '미분반',
+                studentNumber: 0
+              });
+            }
           }
         } catch (error) {
           console.error('하위 컬렉션에서 사용자 UID 추출 실패:', error);
