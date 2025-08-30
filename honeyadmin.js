@@ -134,130 +134,189 @@
       console.log(`총 ${allUsers.length}명의 사용자 정보를 가져왔습니다.`);
       console.log('사용자 목록:', allUsers.map(u => ({ uid: u.uid, name: u.name || u.displayName })));
       
-      // 사용자가 없을 때 하위 컬렉션에서 사용자 UID 추출
+      // 하드코딩된 모든 사용자 UID 목록 사용
       if (allUsers.length === 0) {
-        console.log('상위 문서가 없습니다. 하위 컬렉션에서 사용자 UID를 찾습니다...');
+        console.log('하드코딩된 사용자 UID 목록을 사용합니다...');
         
-        // 여러 방법으로 사용자 UID 추출 시도
-        try {
-          const uniqueUids = new Set();
-          
-          // 방법 1: users/{uid} 경로에서 UID 추출
-          console.log('방법 1: users/{uid} 경로에서 UID 추출 시도...');
-          const userLotteryRef = collection(db, 'users');
-          const userLotterySnapshot = await getDocs(userLotteryRef);
-          userLotterySnapshot.forEach(doc => {
-            uniqueUids.add(doc.id);
-          });
-          
-          // 방법 2: lottery/public/tickets에서 UID 추출
-          console.log('방법 2: lottery/public/tickets에서 UID 추출 시도...');
+        // 하드코딩된 모든 사용자 UID 목록
+        const allUserUids = [
+          'WRcdJOZJJCXMpkV3WG0jUTp8I5h1',
+          'fkLWvKLKaRT4wZ1j40gia8hmsA72',
+          'pqCnLsuyZrfJASspMOixTiJWl0g1',
+          'JjOgt7spmXMpG7tslDz7ROAwJ4P2',
+          'O61e0m0q0JOAkv73jk5y81mdEDd2',
+          '4NboR1jFUcRMRm3uLljF1l6UqMY2',
+          '0Eiyl2LGCRfzVCJRqzn4ot8qSy92',
+          'M5bNsbKXiVQCi7TuyvWkH3RUNji1',
+          'jZ7MmTF7eFZCpq1PHmKbNLghlHA3',
+          'CUOUoM9NTWMvGyZ9YjT6rdUHtVC3',
+          'oxp6mue9lUWd2XIoSIlgSIceTB02',
+          'nswTy2ip82hIEYfOJ1FiMzxcdxi2',
+          'dR39blRK7sMHcHQ1PlAaQ3AvndQ2',
+          'B2ZYgSDjM7Y3DaBIKmsZl8XBXQp1',
+          '51pgFJbj3qYNi2kHJkBSfsOPKYa2',
+          'VKFJbBedjqML1YkW3jZnBdvtiZU2',
+          'ZJ479LfUCMQqpmzYua0HQahgdZk2',
+          'ZlTHQqBY6pNyzVpb2iU8O5DPO4q2',
+          '36AGvjAeTBYdaKeAqIfpNfHTt5G2',
+          'asIYZFIlbWSY1es46bRCMUp9MZr1',
+          'bF588uRythV6lK3vRwSxTeKCWYf1',
+          'cb4ab1jtBjeb2P1OwOrVp8vIHh92',
+          'lLoc3JZ9OHTtczjZ9vT7Augzyhv1',
+          '6bk72c8s6dfe60zi8Qc54F6Nsat1',
+          'VUOd0mFb1zVAGsqYbsAGjHSC6d23',
+          'Q39Thv2UOST2th3uujNyxLybDV32',
+          'J6qlUjQrEMZbbZlWDSvB9OpHW2i1',
+          'dszmx0y2e4e3HCWTV00H1kZ9nB62',
+          'aeTcj1IXeuf3ENUcPxe5vmIYwFn2',
+          'LhQV1IsUIEZZniE3a4QJk52Tft82',
+          'n9lvyxRp8SQqZEyLNCeYWqYz9zG3',
+          'MssfKSgkmJWGY5oP2U3tNEvlWjI3',
+          'PRJWEPkY0be3mTCSWBFHbGQc12u1',
+          'k2fH1Ri0QJbNXyvpAvpuWU3EOuF2',
+          'FrNwbVDMaIXLlUVdG324RYScTRG2',
+          'QxNDx7GVytfh5dxxiCpH84BQhli1',
+          'dM3Rvcwsg8flCKCY6pbiMnjcOrO2',
+          '2RkgZx7kaOaVmyK3RzcDceAlysx1',
+          'X88tTrzkIVYZFYCrP2jpR6xnk2B3',
+          'bl9A3k2Co5WLBJbYUe98Q4JBooC3',
+          'Cn9MV05VeYVyvlQkqZSUoQ5sFlx2',
+          'r2ABBh4F6DgrMIkkaoFM25oBA5O2',
+          'zo2h81Ij3lQk3uE4RbSDpJD7IXh2',
+          'h0aoOGv68PQBIYWsl4544E5bZvf2',
+          'VI2IoZETcMgFmhbupWABysQKadu2',
+          'KhXhhMTo75P8aPHJjBUUxZvrwzs1',
+          'g0c1n5J1W2YawNOmREj0oEsORBE3',
+          'aKNoy2mfa8X5I6Zzrr5BcHPWnRz1',
+          'oVowmmHMRYaskUj2fWpN8rdeUwh2',
+          'o3NeiVAUDZSlUbpG3tMQ1J7UWlq2',
+          'qBPMabxl9BUj53at6V6UIZPfT6r1',
+          'cjX8yMlygIgBlGloF2e9Fum2isZ2',
+          'fmbB02EY3qUtJFpkeKQqXoKcmkN2',
+          '5E3oLGJO3Wc460s4IcOWoqkY0DB3',
+          'cdMWPqGerYcCuTXZbAw1gXEWIXt2',
+          'xN8HtTXTpId0qWf1AxPypYZlWo63',
+          'nX5yEhFCZZdpSBDGYQiHA9kSXJh2',
+          'ejajdQbTF4M8IwFTz1MVnVuuoA22',
+          '8XQWGq2O23MVI0tzRid2gdKrnaG2',
+          'XSeM8AdPCUP810gokNvTazIOX7w2',
+          'I960Kz1EijNF76638P59SgpomdF2',
+          'PCmGu0Kt0HPdhXQUI6zDx6H96yB3',
+          'TUscOf9J5xfFur2J7EGKbjvqfef2',
+          '9cCgknYXkbQe5CAG1DRlFwWmMUE3',
+          'nBElyz9AUASVdsQqeGQPInQdJCo1',
+          'sb9hNOmrNhPd8KO08DscWCzZxT53',
+          'bO3dHUde3CPOqScsZFe9JGOJEsi2',
+          'VQC1azy1H8Xb9E7nuTW1RyMx5B52',
+          'SlKVE6tzEOWkhVk3IfEalmmmyzx2',
+          'l5qENNQkkweMTvQYtzoG4BAZebF3',
+          'UauPrKFTBJaRXyLYjMF4znSsi5U2',
+          'e9Id49Pa6waJFA7g7RHCbiUUdf72',
+          'm8kg1KbSzdVYbIdCxapCooYVsrR2',
+          'HEumHGcKKDVjVdyMQBo5e0pqOv32',
+          '4sPsZvlWUaP3rL6RKZYBrzEaHA93',
+          'UOgj3L4ZOUQeQreSHzLKhtTQwa82',
+          'm1vRmYxl01c4U7nCmP8EK4KooEN2',
+          '7OJyVZFN9Dgw1THf9QgsZPdTQR42',
+          'VsAWChuPIPeZfy8a62FMJMD9QPG3',
+          'l7Xqxsx99KXzTRXRPd7D00jAUTm2',
+          'y6VTQ7kOMDUeixayVkFZkIRB7xO2',
+          'ZgIOnf4qVDbLBiVucuuuG7nSfFT2',
+          'B7j85Y1HDrhIEP24CwghMLDXcLe2',
+          'S8PcwCtfV8UfQKi2KpC5kbfCsq83',
+          'JN4Aj1tLcgSdLbDxJvHXYphEGG12',
+          'IlZ8YpkPjmV79WU2itCwPp8Gk6t2',
+          'jz2W3dOpZmTUw0H3x2DV2QSPet32',
+          'OyDiGyFxHjUOaXfTKSM49ffSXAE2',
+          'vPyKdlAjbfNZIhW9tO2N9fe8Mg22',
+          'BAdn611CqLXqULS3u8EveX6Bl2v2',
+          'FoGVZ5bhimMEp7H43OVNA72Nw0b2',
+          'YA9rtJMw5zXQPNYuWxslDTKlZoo2',
+          'hU6thgkjI1gIasdTpUA3YSGVm0h1',
+          'hkbvHbUC8xRmc9WZisi9vWJtBe82',
+          'tt1YSD1HEncK2IhdjqRc41RDfGB2',
+          'Bc1l3o3zz2T3xjPtdRP83NJipCE2',
+          'cKipew6dcpeWOHddw6yFxRbHBAh2',
+          'grXV9p498Xar1ugyKKGs7ycT2Dr1',
+          '3uvLN9aYtBgOW6h4R5X3aixHMy23',
+          'jiDQCuRpBGVZjnUrIT0cInXgIVG2',
+          'nIFEBVILqgcQSxH5TVrwtglwp7Q2',
+          'oNP1OtfV9wdHTsgGZO6hkCaCiZK2',
+          'DRdR9MMiFHOnNK85CBcYWKKglUw1',
+          'ZAKL8ukxTyQorl2wZhkG1co6dNw1',
+          'ZNE7WWO7rAgeQZbFzvJQq3s9wlx2',
+          'zcaWS7Kl8xSeBoWrVY5w2LpMwsj2'
+        ];
+        
+        console.log(`하드코딩된 사용자 UID 목록: 총 ${allUserUids.length}명`);
+        
+        // 각 UID에 대해 사용자 정보 생성
+        for (const uid of allUserUids) {
           try {
-            const lotteryRef = collection(db, 'lottery', 'public', 'tickets');
-            const lotterySnapshot = await getDocs(lotteryRef);
-            lotterySnapshot.forEach(doc => {
-              const data = doc.data();
-              if (data.uid) {
-                uniqueUids.add(data.uid);
-              }
-            });
-          } catch (lotteryError) {
-            console.log('lottery/public/tickets 접근 실패:', lotteryError.message);
-          }
-          
-          // 방법 3: feedback에서 UID 추출
-          console.log('방법 3: feedback에서 UID 추출 시도...');
-          try {
-            const feedbackRef = collection(db, 'feedback');
-            const feedbackSnapshot = await getDocs(feedbackRef);
-            feedbackSnapshot.forEach(doc => {
-              const data = doc.data();
-              if (data.uid) {
-                uniqueUids.add(data.uid);
-              }
-            });
-          } catch (feedbackError) {
-            console.log('feedback 접근 실패:', feedbackError.message);
-          }
-          
-          // 방법 4: 직접 알려진 UID 추가 (Firebase 콘솔에서 확인된 UID)
-          console.log('방법 4: 알려진 UID 추가...');
-          const knownUids = [
-            '0Eiyl2LGCRfzVCJRqzn4ot8qSy92'  // Firebase 콘솔에서 확인된 UID
-          ];
-          knownUids.forEach(uid => uniqueUids.add(uid));
-          
-          console.log('발견된 사용자 UID들:', Array.from(uniqueUids));
-          
-          // UID로 사용자 정보 생성 및 실제 데이터 가져오기
-          for (const uid of uniqueUids) {
-            try {
-              // 사용자 기본 정보 문서 시도
-              const userDocRef = doc(db, 'users', uid);
-              const userDocSnap = await getDoc(userDocRef);
-              
-              let userInfo = {
+            // 사용자 기본 정보 문서 시도
+            const userDocRef = doc(db, 'users', uid);
+            const userDocSnap = await getDoc(userDocRef);
+            
+            let userInfo = {
+              uid: uid,
+              name: `사용자 ${uid.substring(0, 8)}`,
+              className: '미분반',
+              studentNumber: 0
+            };
+            
+            if (userDocSnap.exists()) {
+              const userData = userDocSnap.data();
+              userInfo = {
                 uid: uid,
-                name: `사용자 ${uid.substring(0, 8)}`,
-                className: '미분반',
-                studentNumber: 0
+                name: userData.name || userData.displayName || `사용자 ${uid.substring(0, 8)}`,
+                className: userData.className || userData.class || '미분반',
+                studentNumber: userData.studentNumber || userData.number || 0,
+                email: userData.email || null
               };
-              
-              if (userDocSnap.exists()) {
-                const userData = userDocSnap.data();
-                userInfo = {
-                  uid: uid,
-                  name: userData.name || userData.displayName || `사용자 ${uid.substring(0, 8)}`,
-                  className: userData.className || userData.class || '미분반',
-                  studentNumber: userData.studentNumber || userData.number || 0,
-                  email: userData.email || null
-                };
-              } else {
-                // 기본 정보가 없으면 profile 컬렉션에서 정보 찾기
-                console.log(`사용자 ${uid}의 기본 정보 문서가 없습니다. profile에서 정보를 찾습니다...`);
-                
-                try {
-                  const profileRef = doc(db, 'users', uid, 'profile', 'main');
-                  const profileSnap = await getDoc(profileRef);
-                  if (profileSnap.exists()) {
-                    const profileData = profileSnap.data();
-                    userInfo = {
-                      uid: uid,
-                      name: profileData.name || profileData.nickname || `사용자 ${uid.substring(0, 8)}`,
-                      className: profileData.classNo ? `${profileData.grade || ''}학년 ${profileData.classNo}반` : '미분반',
-                      studentNumber: profileData.studentNo || 0,
-                      grade: profileData.grade || null,
-                      classNo: profileData.classNo || null,
-                      nickname: profileData.nickname || null,
-                      phone: profileData.phone || null,
-                      updatedAt: profileData.updatedAt || null
-                    };
-                    console.log(`사용자 ${uid}의 프로필 정보 발견:`, userInfo);
-                  } else {
-                    console.log(`사용자 ${uid}의 프로필 정보도 없습니다. 기본 정보로 생성합니다.`);
-                  }
-                } catch (profileError) {
-                  console.log(`사용자 ${uid}의 프로필 정보 접근 실패:`, profileError.message);
+            } else {
+              // 기본 정보가 없으면 profile 컬렉션에서 정보 찾기
+              try {
+                const profileRef = doc(db, 'users', uid, 'profile', 'main');
+                const profileSnap = await getDoc(profileRef);
+                if (profileSnap.exists()) {
+                  const profileData = profileSnap.data();
+                  userInfo = {
+                    uid: uid,
+                    name: profileData.name || profileData.nickname || `사용자 ${uid.substring(0, 8)}`,
+                    className: profileData.classNo ? `${profileData.grade || ''}학년 ${profileData.classNo}반` : '미분반',
+                    studentNumber: profileData.studentNo || 0,
+                    grade: profileData.grade || null,
+                    classNo: profileData.classNo || null,
+                    nickname: profileData.nickname || null,
+                    phone: profileData.phone || null,
+                    updatedAt: profileData.updatedAt || null
+                  };
                 }
+              } catch (profileError) {
+                // 프로필 정보 접근 실패 시 기본 정보 사용
               }
-              
-              allUsers.push(userInfo);
-              console.log(`사용자 ${uid} 정보 생성 완료:`, userInfo);
-              
-            } catch (userError) {
-              console.error(`사용자 ${uid} 정보 생성 실패:`, userError);
-              // 기본 정보라도 추가
-              allUsers.push({
-                uid: uid,
-                name: `사용자 ${uid.substring(0, 8)}`,
-                className: '미분반',
-                studentNumber: 0
-              });
             }
+            
+            allUsers.push(userInfo);
+            
+            // 진행 상황 표시 (20명마다)
+            if (allUsers.length % 20 === 0) {
+              console.log(`진행 상황: ${allUsers.length}/${allUserUids.length}명 완료`);
+            }
+            
+          } catch (userError) {
+            console.error(`사용자 ${uid} 정보 생성 실패:`, userError);
+            // 기본 정보라도 추가
+            allUsers.push({
+              uid: uid,
+              name: `사용자 ${uid.substring(0, 8)}`,
+              className: '미분반',
+              studentNumber: 0
+            });
           }
-        } catch (error) {
-          console.error('하위 컬렉션에서 사용자 UID 추출 실패:', error);
         }
+        
+        console.log(`최종 사용자 목록: 총 ${allUsers.length}명`);
       }
       
       return allUsers;
