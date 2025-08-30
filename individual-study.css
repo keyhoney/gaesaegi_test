@@ -76,16 +76,56 @@ select:focus-visible, input:focus-visible {
   margin-top: 8px;
 }
 
-.today-stats {
+.question-history {
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid var(--border);
-  color: var(--muted);
-  display: flex;
-  gap: 8px;
-  align-items: center;
 }
-.today-stats .divider { opacity: 0.5; }
+
+.history-info {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0;
+}
+
+.history-info h4 {
+  color: var(--text);
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.history-info p {
+  margin: 4px 0;
+  color: var(--muted);
+}
+
+.history-info strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.attempts-by-date {
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--bg-alt);
+  border-radius: 8px;
+}
+
+.attempts-by-date p {
+  margin: 0 0 4px 0;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.attempts-by-date ul {
+  margin: 0;
+  padding-left: 16px;
+  color: var(--muted);
+}
+
+.attempts-by-date li {
+  margin: 2px 0;
+}
 
 @media (max-width: 900px) {
   .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }

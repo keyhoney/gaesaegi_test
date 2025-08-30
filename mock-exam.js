@@ -33,23 +33,7 @@
   const $rewardMsg = document.getElementById('rewardMsg');
   const $breakdown = document.getElementById('breakdown');
 
-  // 학습 로그 저장(실데이터 연동)
-  const LOG_KEY = 'gsg_learning_logs';
-  const ANSWERED_SET_KEY = 'gsg_answered_set';
-  const ANSWERED_LOG_KEY = 'gsg_answered_log';
-  function loadLogs() { try { const a = JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (_) { return []; } }
-  function saveLogs(arr) { localStorage.setItem(LOG_KEY, JSON.stringify(arr)); }
-  function todayKey() { const d = new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
-  function appendQLog(subject, cat, sub, topic, isCorrect) {
-    if (!subject) return;
-    const logs = loadLogs();
-    logs.push({ date: todayKey(), subject, cat: cat || null, sub: sub || null, topic: topic || null, correct: isCorrect ? 1 : 0, total: 1 });
-    saveLogs(logs);
-  }
-  function loadSet(key){ try{ return new Set(JSON.parse(localStorage.getItem(key)||'[]')); }catch(_){ return new Set(); } }
-  function saveSet(key,s){ localStorage.setItem(key, JSON.stringify(Array.from(s))); }
-  function loadAnsLog(){ try{ const a = JSON.parse(localStorage.getItem(ANSWERED_LOG_KEY)||'[]'); return Array.isArray(a)?a:[]; }catch(_){ return []; } }
-  function saveAnsLog(a){ localStorage.setItem(ANSWERED_LOG_KEY, JSON.stringify(a)); }
+
 
   // 데이터
   let dataset = [];
@@ -335,7 +319,6 @@
     const fbAnswered = [];
     qs.forEach((q, i) => {
       const ok = (ans[i] || '').trim() === q.answer;
-      appendQLog(q.subject || '', q.cat || null, q.sub || null, q.topic || null, ok);
       fbLogs.push({ date: today, subject: q.subject || '', cat: q.cat || null, sub: q.sub || null, topic: q.topic || null, correct: ok ? 1 : 0, total: 1 });
       fbAnswered.push({ date: today, qid: q.id });
     });
@@ -354,32 +337,12 @@
         }
       } catch (_) {}
       
-      // 챌린지 업데이트 (일/주/월)
-      try { 
-        const correctCount = fbLogs.filter(log => log.correct === 1).length;
-        for (let i = 0; i < correctCount; i++) {
-          await window.firebaseData?.updateChallengesOnAnswer?.(true);
-        }
-      } catch (_) {}
-      
-      // 정답 이벤트 기록 (배지용)
-      try {
-        for (const log of fbLogs) {
-          await window.firebaseData?.addAnswerEvent?.(log.correct === 1);
-        }
-      } catch (_) {}
+
     })();
 
-    // 문제별 응답 기록(학습 진행률 계산용)
-    const ansSet = loadSet(ANSWERED_SET_KEY);
-    const ansLog = loadAnsLog();
-    qs.forEach((_q, i) => {
-      const id = _q.id; ansSet.add(id); ansLog.push({ date: todayKey(), qid: id });
-    });
-    saveSet(ANSWERED_SET_KEY, ansSet); saveAnsLog(ansLog);
+
     
-    // 리더보드 갱신 플래그 설정 (성취도 페이지 진입 시 갱신)
-    try { localStorage.setItem('gsg_lb_dirty', '1'); } catch {}
+
 
     detail.forEach(d => {
       const el = document.createElement('div');

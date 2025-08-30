@@ -245,35 +245,6 @@
       } catch (_) { return false; }
     },
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // Favorites
     async listFavorites() {
       try {
@@ -399,10 +370,23 @@
           rank = 3;
         }
         const ticket = { uid: user.uid, drawDate: key, nums: ticketNums, drawNums, drawBonus, hitCount: hit, rank, at: serverTimestamp() };
-        // 사용자 티켓 기록은 필수
-        await addDoc(collection(db, 'users', user.uid, 'lotteryTickets'), ticket);
-        // 공개 티켓/통계는 권한 문제로 실패해도 구매는 성공 처리
-        try { await addDoc(collection(db, 'lottery', 'tickets'), ticket); } catch {}
+        
+        // 사용자 티켓 기록 저장 (필수)
+        try {
+          await addDoc(collection(db, 'users', user.uid, 'lotteryTickets'), ticket);
+        } catch (e) {
+          console.error('사용자 티켓 저장 실패:', e);
+          return { ok: false, error: 'user-ticket-save-failed' };
+        }
+        
+        // 공개 티켓 기록 저장 (선택적)
+        try { 
+          await addDoc(collection(db, 'lottery', 'tickets'), ticket); 
+        } catch (e) {
+          console.warn('공개 티켓 저장 실패 (무시됨):', e);
+        }
+        
+        // 통계 업데이트 (선택적)
         try {
           const statsRef = doc(db, 'lottery', 'public', 'stats', 'main');
           await runTransaction(db, async (trx)=>{
@@ -412,7 +396,10 @@
             if (rank) next[`w${rank}`] = (cur[`w${rank}`]||0) + 1;
             trx.set(statsRef, next, { merge: true });
           });
-        } catch {}
+        } catch (e) {
+          console.warn('통계 업데이트 실패 (무시됨):', e);
+        }
+        
         return { ok:true, rank, hit, drawNums, drawBonus, drawDate: key };
       } catch (e) { return { ok:false, error:String(e&&e.message||e) }; }
     },

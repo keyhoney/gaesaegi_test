@@ -103,14 +103,17 @@
     let res = null;
     try { res = await window.firebaseData?.lotteryBuyTicket?.(pick); } catch(e) { res = null; }
     if (!res || res.ok !== true){
+      console.error('로또 구매 실패:', res);
       // 실패로 내려와도 서버측에서 구매/차감/기록이 되었을 수 있으므로 즉시 동기화
       await refreshBalance();
       await loadMyTickets();
       await loadStats();
       await refreshLatestResult();
       const err = res?.error || '구매 처리 상태를 확인했습니다.';
-      buyMsg.textContent = err==='insufficient-coins' ? '코인이 부족합니다.' : '구매가 처리되었을 수 있어 목록/결과를 갱신했습니다.';
-      buyMsg.style.color = err==='insufficient-coins' ? '#c62828' : 'inherit';
+      buyMsg.textContent = err==='insufficient-coins' ? '코인이 부족합니다.' : 
+                          err==='user-ticket-save-failed' ? '티켓 저장에 실패했습니다.' :
+                          '구매가 처리되었을 수 있어 목록/결과를 갱신했습니다.';
+      buyMsg.style.color = err==='insufficient-coins' || err==='user-ticket-save-failed' ? '#c62828' : 'inherit';
       return;
     }
     window.showToast&&window.showToast('구매 완료','success');
