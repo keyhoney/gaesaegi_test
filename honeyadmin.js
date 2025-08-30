@@ -134,15 +134,54 @@
       if (allUsers.length === 0) {
         console.log('상위 문서가 없습니다. 하위 컬렉션에서 사용자 UID를 찾습니다...');
         
-        // users/{uid}/lotteryTickets에서 UID 추출
+        // 여러 방법으로 사용자 UID 추출 시도
         try {
-          const userLotteryRef = collection(db, 'users');
-          const userLotterySnapshot = await getDocs(userLotteryRef);
           const uniqueUids = new Set();
           
+          // 방법 1: users/{uid} 경로에서 UID 추출
+          console.log('방법 1: users/{uid} 경로에서 UID 추출 시도...');
+          const userLotteryRef = collection(db, 'users');
+          const userLotterySnapshot = await getDocs(userLotteryRef);
           userLotterySnapshot.forEach(doc => {
             uniqueUids.add(doc.id);
           });
+          
+          // 방법 2: lottery/public/tickets에서 UID 추출
+          console.log('방법 2: lottery/public/tickets에서 UID 추출 시도...');
+          try {
+            const lotteryRef = collection(db, 'lottery', 'public', 'tickets');
+            const lotterySnapshot = await getDocs(lotteryRef);
+            lotterySnapshot.forEach(doc => {
+              const data = doc.data();
+              if (data.uid) {
+                uniqueUids.add(data.uid);
+              }
+            });
+          } catch (lotteryError) {
+            console.log('lottery/public/tickets 접근 실패:', lotteryError.message);
+          }
+          
+          // 방법 3: feedback에서 UID 추출
+          console.log('방법 3: feedback에서 UID 추출 시도...');
+          try {
+            const feedbackRef = collection(db, 'feedback');
+            const feedbackSnapshot = await getDocs(feedbackRef);
+            feedbackSnapshot.forEach(doc => {
+              const data = doc.data();
+              if (data.uid) {
+                uniqueUids.add(data.uid);
+              }
+            });
+          } catch (feedbackError) {
+            console.log('feedback 접근 실패:', feedbackError.message);
+          }
+          
+          // 방법 4: 직접 알려진 UID 추가 (Firebase 콘솔에서 확인된 UID)
+          console.log('방법 4: 알려진 UID 추가...');
+          const knownUids = [
+            '0Eiyl2LGCRfzVCJRqzn4ot8qSy92'  // Firebase 콘솔에서 확인된 UID
+          ];
+          knownUids.forEach(uid => uniqueUids.add(uid));
           
           console.log('발견된 사용자 UID들:', Array.from(uniqueUids));
           

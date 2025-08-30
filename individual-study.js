@@ -139,32 +139,36 @@
     $questionHistory.innerHTML = html;
   }
 
-  // 하루 문제 풀이 수 추적 및 코인 지급
-  async function trackDailyQuestionsAndReward(qid) {
+  // 하루 정답 문제 수 추적 및 코인 지급
+  async function trackDailyQuestionsAndReward(qid, isCorrect) {
     try {
       const dateKey = await window.firebaseData?.getServerDateSeoulKey?.() || todayKey();
       
-      // 오늘 풀었던 문제들 목록 가져오기 (현재 문제 제외)
-      const answeredLogs = await window.firebaseData?.fetchAnsweredLogs?.() || [];
-      const todayLogs = answeredLogs.filter(log => log.date === dateKey && log.qid !== qid);
+      // 오늘 정답을 맞춘 문제들 목록 가져오기 (현재 문제 제외)
+      const finalAnswers = await window.firebaseData?.listFinalAnswers?.() || [];
+      const todayCorrectAnswers = finalAnswers.filter(answer => 
+        answer.date === dateKey && 
+        answer.correct === true && 
+        answer.id !== qid
+      );
       
-      // 중복 제거하여 고유한 문제 수 계산
-      const uniqueQuestions = new Set(todayLogs.map(log => log.qid));
+      // 중복 제거하여 고유한 정답 문제 수 계산
+      const uniqueCorrectQuestions = new Set(todayCorrectAnswers.map(answer => answer.id));
       
-      // 현재 문제가 이미 오늘 풀었던 문제인지 확인
-      const isNewQuestion = !uniqueQuestions.has(qid);
+      // 현재 문제가 이미 오늘 정답을 맞춘 문제인지 확인
+      const isNewCorrectQuestion = !uniqueCorrectQuestions.has(qid);
       
-      if (isNewQuestion) {
-        // 새로운 문제인 경우에만 카운트에 추가
-        uniqueQuestions.add(qid);
-        const totalUniqueQuestions = uniqueQuestions.size;
+      if (isCorrect && isNewCorrectQuestion) {
+        // 새로운 정답인 경우에만 카운트에 추가
+        uniqueCorrectQuestions.add(qid);
+        const totalUniqueCorrectQuestions = uniqueCorrectQuestions.size;
         
         // 10문제 단위로 코인 지급
-        if (totalUniqueQuestions % DAILY_QUESTIONS_FOR_COIN === 0) {
-          const coinsEarned = Math.floor(totalUniqueQuestions / DAILY_QUESTIONS_FOR_COIN);
+        if (totalUniqueCorrectQuestions % DAILY_QUESTIONS_FOR_COIN === 0) {
+          const coinsEarned = Math.floor(totalUniqueCorrectQuestions / DAILY_QUESTIONS_FOR_COIN);
           await window.firebaseData?.addCoins?.(coinsEarned);
           
-          const message = `축하합니다! 오늘 ${totalUniqueQuestions}번째 문제를 풀었습니다. 코인 ${coinsEarned}개를 획득했습니다! 🎉`;
+          const message = `축하합니다! 오늘 ${totalUniqueCorrectQuestions}번째 정답을 맞췄습니다. 코인 ${coinsEarned}개를 획득했습니다! 🎉`;
           toast(message, 'success');
           return message;
         }
@@ -174,6 +178,47 @@
     } catch (error) {
       console.error('보상 지급 중 오류:', error);
       return null;
+    }
+  }
+
+  // 현재 진행 상황 표시
+  async function updateProgressDisplay() {
+    try {
+      const dateKey = await window.firebaseData?.getServerDateSeoulKey?.() || todayKey();
+      
+      // 오늘 정답을 맞춘 문제들 목록 가져오기
+      const finalAnswers = await window.firebaseData?.listFinalAnswers?.() || [];
+      const todayCorrectAnswers = finalAnswers.filter(answer => 
+        answer.date === dateKey && 
+        answer.correct === true
+      );
+      
+      // 중복 제거하여 고유한 정답 문제 수 계산
+      const uniqueCorrectQuestions = new Set(todayCorrectAnswers.map(answer => answer.id));
+      const currentCorrectCount = uniqueCorrectQuestions.size;
+      
+      // 진행 상황 계산
+      const progress = currentCorrectCount % DAILY_QUESTIONS_FOR_COIN;
+      const nextRewardAt = DAILY_QUESTIONS_FOR_COIN - progress;
+      
+      // 진행 상황 표시 업데이트
+      const progressElement = document.getElementById('progressDisplay');
+      if (progressElement) {
+        progressElement.innerHTML = `
+          <div class="progress-info">
+            <span class="progress-text">정답 진행: ${currentCorrectCount}문항 / 목표: ${DAILY_QUESTIONS_FOR_COIN}문항</span>
+            <span class="progress-bar">
+              <span class="progress-fill" style="width: ${(progress / DAILY_QUESTIONS_FOR_COIN) * 100}%"></span>
+            </span>
+            <span class="next-reward">다음 코인까지: ${nextRewardAt}문항</span>
+          </div>
+        `;
+      }
+      
+      return { currentCorrectCount, nextRewardAt };
+    } catch (error) {
+      console.error('진행 상황 표시 업데이트 중 오류:', error);
+      return { currentCorrectCount: 0, nextRewardAt: DAILY_QUESTIONS_FOR_COIN };
     }
   }
 
@@ -430,6 +475,13 @@
     } catch (error) {
       console.error('문제 풀이 기록 조회 실패:', error);
     }
+    
+    // 진행 상황 업데이트
+    try {
+      await updateProgressDisplay();
+    } catch (error) {
+      console.error('진행 상황 업데이트 실패:', error);
+    }
   }
 
   function renderQuestion() {
@@ -507,8 +559,11 @@
     try { await window.firebaseData?.addLearningLog({ date: todayKey(), subject: subj, cat, sub, topic, correct: isCorrect ? 1 : 0, total: 1 }); } catch (_) {}
     try { await window.firebaseData?.addAnsweredLog({ date: todayKey(), qid: currentQuestion.id }); } catch (_) {}
 
-    // 하루 문제 풀이 보상 체크 (새로운 문제인 경우에만)
-    const rewardMessage = await trackDailyQuestionsAndReward(currentQuestion.id);
+    // 하루 정답 문제 보상 체크 (새로운 정답인 경우에만)
+    const rewardMessage = await trackDailyQuestionsAndReward(currentQuestion.id, isCorrect);
+    
+    // 진행 상황 업데이트
+    await updateProgressDisplay();
 
     // 최종 제출 답안을 answers/{qid}로 저장(과목 필터 정확도를 위해 메타 포함)
     try {
@@ -571,6 +626,13 @@
       populateSubjects(h);
       wireEvents(h);
       applyDeepLink(h);
+      
+      // 초기 진행 상황 표시
+      try {
+        await updateProgressDisplay();
+      } catch (error) {
+        console.error('초기 진행 상황 표시 실패:', error);
+      }
     } catch (err) {
       console.error(err);
       alert('문제 데이터를 불러오는 중 오류가 발생했습니다. 새로고침 후 다시 시도해 주세요.');

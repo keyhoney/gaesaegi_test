@@ -40,6 +40,17 @@
         <div class="container">
           <h1>개별 문제 학습</h1>
           <p class="intro">과목부터 소분류까지 차례대로 선택한 뒤, 해당 소분류의 개별 문제를 선택해 풀이하세요.</p>
+          
+          <!-- 진행 상황 표시 영역 -->
+          <div id="progressDisplay" class="progress-display" aria-live="polite">
+            <div class="progress-info">
+              <span class="progress-text">정답 진행: 0문항 / 목표: 10문항</span>
+              <span class="progress-bar">
+                <span class="progress-fill" style="width: 0%"></span>
+              </span>
+              <span class="next-reward">다음 코인까지: 10문항</span>
+            </div>
+          </div>
 
           <div class="filters" role="group" aria-label="문제 선택 필터">
             <div class="field">
