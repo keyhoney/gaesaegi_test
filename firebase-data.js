@@ -347,13 +347,13 @@
         let drawNums, drawBonus, hit, rank;
         let attempts = 0;
         const maxAttempts = 100; // 무한 루프 방지
+        const ticketNums = pick6.slice().sort((a,b)=>a-b); // 루프 밖으로 이동
         
         do {
           const pool = Array.from({length:15},(_,i)=>i+1);
           for (let i=pool.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
           drawNums = pool.slice(0,6).sort((a,b)=>a-b);
           drawBonus = pool[6];
-          const ticketNums = pick6.slice().sort((a,b)=>a-b);
           // evaluate rank
           hit = ticketNums.filter(n => drawNums.includes(n)).length;
           rank = null;
