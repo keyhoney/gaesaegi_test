@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GSG - 즐겨찾기</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="favorites.css" />
+    <link rel="icon" href="/favicon.ico" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">본문 바로가기</a>
+    <header class="site-header" role="banner">
+      <div class="container nav-container">
+        <div class="brand" aria-label="GSG 홈">
+          <a href="index.html" class="brand" style="text-decoration:none; color:inherit">
+            <span class="logo" aria-hidden="true"><img src="img/gsg-icon.png" alt="GSG 로고" width="60" height="60"/></span>
+            <span class="brand-name">GSG</span>
+          </a>
+        </div>
+        <nav class="site-nav" aria-label="상단 메뉴">
+          <ul>
+            <li><a href="index.html" class="btn ghost small">메인</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main id="main" class="page" tabindex="-1">
+      <section class="section">
+        <div class="container">
+          <h1>즐겨찾기</h1>
+          <div class="tabs">
+            <button class="tab active" data-tab="fav">즐겨찾는 문항</button>
+            <button class="tab" data-tab="wrong">오답 문항</button>
+          </div>
+
+          <div id="favTab" class="panel">
+            <div id="favList" class="list-grid"></div>
+          </div>
+          <div id="wrongTab" class="panel" hidden>
+            <div id="wrongList" class="list-grid"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <!-- Toast container -->
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+    <script src="firebase-config.js" defer></script>
+    <script src="firebase-data.js" defer></script>
+    <script src="favorites.js" defer></script>
+  </body>
+  </html>
+
+

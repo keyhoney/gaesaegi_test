@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GSG - 모의고사</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="mock-exam.css" />
+    <link rel="stylesheet" href="note-embed.css" />
+    <link rel="icon" href="/favicon.ico" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">본문 바로가기</a>
+    <header class="site-header" role="banner">
+      <div class="container nav-container">
+        <div class="brand" aria-label="GSG 홈">
+          <a href="index.html" class="brand" style="text-decoration:none; color:inherit">
+            <span class="logo" aria-hidden="true"><img src="img/gsg-icon.png" alt="GSG 로고" width="60" height="60"/></span>
+            <span class="brand-name">GSG</span>
+          </a>
+        </div>
+        <nav class="site-nav" aria-label="상단 메뉴">
+          <ul>
+            <li><a href="index.html" class="btn ghost small">메인</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main id="main" class="page" tabindex="-1">
+      <section class="section">
+        <div class="container">
+          <h1>모의고사</h1>
+          <p class="intro">학습할 범위를 추가하고 난이도 범위를 설정한 뒤, 원하는 문항 수로 모의고사를 생성하세요. 최소 10문항부터 가능합니다.</p>
+
+          <div id="builder" class="builder" aria-label="모의고사 구성">
+            <div class="filters" role="group" aria-label="단원 선택">
+              <div class="field">
+                <label for="subjectSel">과목</label>
+                <select id="subjectSel">
+                  <option value="" selected disabled>과목 선택</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="catSel">대분류</label>
+                <select id="catSel" disabled>
+                  <option value="" selected>선택 안 함</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="subSel">중분류</label>
+                <select id="subSel" disabled>
+                  <option value="" selected>선택 안 함</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="topicSel">소분류</label>
+                <select id="topicSel" disabled>
+                  <option value="" selected>선택 안 함</option>
+                </select>
+              </div>
+              <div class="field actions">
+                <label>&nbsp;</label>
+                <button id="addRangeBtn" class="btn primary">범위 추가</button>
+              </div>
+            </div>
+
+            <div class="chips" id="rangeChips" aria-live="polite"></div>
+
+            <div class="difficulty" role="group" aria-label="난이도 범위">
+              <div class="field">
+                <label for="minHeart">최소 하트</label>
+                <select id="minHeart">
+                  <option value="1">♥</option>
+                  <option value="2">♥♥</option>
+                  <option value="3">♥♥♥</option>
+                  <option value="4">♥♥♥♥</option>
+                  <option value="5">♥♥♥♥♥</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="maxHeart">최대 하트</label>
+                <select id="maxHeart">
+                  <option value="1">♥</option>
+                  <option value="2">♥♥</option>
+                  <option value="3">♥♥♥</option>
+                  <option value="4">♥♥♥♥</option>
+                  <option value="5" selected>♥♥♥♥♥</option>
+                </select>
+              </div>
+              <div class="stats">
+                <span>검색된 문항: <strong id="matchedCount">0</strong>개</span>
+              </div>
+            </div>
+
+            <div class="exam-create">
+              <div class="field">
+                <label for="numQuestions">출제 문항 수</label>
+                <input id="numQuestions" class="num-input" type="number" min="10" step="1" value="10" />
+              </div>
+              <button id="createExamBtn" class="btn primary" disabled>모의고사 만들기</button>
+              <p class="hint">최소 10문항, 최대는 현재 조건에서 검색된 문항 수까지 가능합니다.</p>
+            </div>
+          </div>
+
+          <div id="exam" class="exam" hidden>
+            <div class="exam-header">
+              <div><strong id="examTitle">모의고사</strong></div>
+              <div id="examProgress">1 / 10</div>
+            </div>
+            <div class="question-view">
+              <img id="examImage" alt="문제 이미지" />
+              <form id="examAnswerForm" class="answer-form" novalidate>
+                <div class="row">
+                  <div class="field flex-1">
+                    <label for="examAnswer">정답 입력</label>
+                    <input id="examAnswer" type="text" inputmode="numeric" autocomplete="off" placeholder="정답을 입력하세요" />
+                  </div>
+                </div>
+              </form>
+              <div class="nav">
+                <button id="prevBtn" class="btn primary" disabled>이전 문제</button>
+                <button id="nextBtn" class="btn primary">다음 문제</button>
+                <button id="submitExamBtn" class="btn primary" disabled>최종 제출</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="result" class="result" hidden>
+            <h2>결과</h2>
+            <p id="summary"></p>
+            <p id="rewardMsg" class="reward"></p>
+            <div id="breakdown" class="breakdown"></div>
+            <div class="actions">
+              <a class="btn primary" href="mock-exam.html">다시 구성하기</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="mock-exam.js" defer></script>
+    <script src="firebase-config.js" defer></script>
+    <script src="firebase-data.js" defer></script>
+    <script src="note-embed.js" defer></script>
+  </body>
+  </html>

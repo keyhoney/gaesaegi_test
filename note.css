@@ -1,0 +1,98 @@
+.page .note-card {
+  padding: 0;
+}
+
+.note-card {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 0;
+  overflow: hidden;
+}
+
+.note-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-alt);
+}
+.note-toolbar .toolbar-group {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+}
+.note-toolbar .tool.active {
+  background: rgba(138, 75, 83, 0.1);
+  outline: 1px solid rgba(107, 56, 62, 0.35);
+}
+
+.note-toolbar .input {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border-strong);
+  min-width: 160px;
+}
+.note-toolbar .select {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border-strong);
+}
+.note-toolbar input[type="color"] {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--card);
+}
+
+.note-stage {
+  position: relative;
+  height: min(72vh, 900px);
+  background: var(--card);
+}
+.note-stage .canvas-container {
+  position: absolute;
+  inset: 0;
+}
+.note-stage canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.note-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  background: var(--bg);
+  font-size: 14px;
+}
+.note-status .divider { opacity: 0.5; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 640px) {
+  .note-stage { height: 62vh; }
+}
+
+

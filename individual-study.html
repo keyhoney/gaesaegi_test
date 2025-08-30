@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GSG - 개별 문제 학습</title>
+    <meta name="description" content="GSG 개별 문제 학습" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <!-- 공통 스타일 -->
+    <link rel="stylesheet" href="styles.css" />
+    <!-- 전용 스타일 -->
+    <link rel="stylesheet" href="individual-study.css" />
+    <link rel="stylesheet" href="note-embed.css" />
+    <link rel="icon" href="/favicon.ico" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">본문 바로가기</a>
+
+    <header class="site-header" role="banner">
+      <div class="container nav-container">
+        <div class="brand" aria-label="GSG 홈">
+          <a href="index.html" class="brand" style="text-decoration:none; color:inherit">
+            <span class="logo" aria-hidden="true"><img src="img/gsg-icon.png" alt="GSG 로고" width="60" height="60"/></span>
+            <span class="brand-name">GSG</span>
+          </a>
+        </div>
+        <nav class="site-nav" aria-label="상단 메뉴">
+          <ul>
+            <li><a href="index.html" class="btn ghost small">메인</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="page" tabindex="-1">
+      <section class="section">
+        <div class="container">
+          <h1>개별 문제 학습</h1>
+          <p class="intro">과목부터 소분류까지 차례대로 선택한 뒤, 해당 소분류의 개별 문제를 선택해 풀이하세요.</p>
+
+          <div class="filters" role="group" aria-label="문제 선택 필터">
+            <div class="field">
+              <label for="subjectSelect">과목</label>
+              <select id="subjectSelect" aria-label="과목 선택">
+                <option value="" selected disabled>과목 선택</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="categorySelect">대분류</label>
+              <select id="categorySelect" aria-label="대분류 선택" disabled>
+                <option value="" selected disabled>대분류 선택</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="subcategorySelect">중분류</label>
+              <select id="subcategorySelect" aria-label="중분류 선택" disabled>
+                <option value="" selected disabled>중분류 선택</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="topicSelect">소분류</label>
+              <select id="topicSelect" aria-label="소분류 선택" disabled>
+                <option value="" selected disabled>소분류 선택</option>
+              </select>
+            </div>
+            <div class="field wide">
+              <label for="questionSelect">개별 문제</label>
+              <select id="questionSelect" aria-label="개별 문제 선택" disabled>
+                <option value="" selected disabled>개별 문제 선택</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="questionArea" class="question-area" hidden>
+            <div class="question-header">
+              <div>
+                <div id="questionNumber" class="qn"></div>
+                <div class="meta">
+                  <span>난이도: <strong id="questionDifficulty"></strong></span>
+                </div>
+              </div>
+              <button id="favToggle" class="btn ghost small fav-toggle" type="button" aria-pressed="false" aria-label="즐겨찾기 추가" title="즐겨찾기 추가">
+                <span class="fav-icon" aria-hidden="true">☆</span>
+                <span class="fav-label">즐겨찾기 추가</span>
+              </button>
+            </div>
+
+            <div class="question-content">
+              <img id="questionImage" alt="문제 이미지" />
+            </div>
+
+            <form id="answerForm" class="answer-form" novalidate>
+              <div class="row">
+                <div class="field flex-1">
+                  <label for="answerInput">정답 입력</label>
+                  <input id="answerInput" type="text" inputmode="numeric" autocomplete="off" placeholder="정답을 입력하세요" required />
+                </div>
+                <div class="actions">
+                  <button type="submit" class="btn primary">제출</button>
+                </div>
+              </div>
+              <p id="feedback" class="feedback" aria-live="polite"></p>
+              <p id="rewardInfo" class="reward" aria-live="polite"></p>
+            </form>
+
+            <div class="solution-actions">
+              <a id="solutionLink" class="btn ghost small" href="#" target="_blank" rel="noopener">해설 영상 보기</a>
+            </div>
+
+            <div class="today-stats" aria-live="polite">
+              <span>오늘 획득 경험치: <strong id="expToday">0</strong> / 2,000</span>
+              <span class="divider">|</span>
+              <span>오늘 획득 포인트: <strong id="pointsToday">0</strong> / 1,000</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Toast container -->
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="firebase-config.js" defer></script>
+    <script src="firebase-data.js" defer></script>
+    <script src="individual-study.js" defer></script>
+    <script src="note-embed.js" defer></script>
+  </body>
+  </html>
+
+

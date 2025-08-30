@@ -1,0 +1,92 @@
+.note-fab {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1400;
+  padding: 10px 12px;
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-alt);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+}
+.note-fab:hover, .note-fab:focus-visible { filter: brightness(1.02); }
+
+.note-dock {
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 100vw;
+  min-width: 0;
+  background: var(--card);
+  border-left: none;
+  box-shadow: none;
+  z-index: 1300;
+  display: none;
+}
+.note-dock.open { display: block; }
+
+.note-dock .note-dock-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 10px; border-bottom: 1px solid var(--border); background: var(--bg-alt);
+}
+.note-dock .note-dock-title { font-weight: 700; }
+.note-dock .note-dock-close {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  padding: 6px 10px; cursor: pointer;
+}
+
+.note-dock .note-embed-root { 
+  position: absolute; inset: 40px 0 0 0; 
+  display: grid; grid-template-columns: minmax(280px, 40%) 1fr; gap: 0; height: 100%;
+}
+
+.note-preview-pane {
+  display: grid; grid-template-rows: auto 1fr; overflow: hidden; border-right: 1px solid var(--border); background: var(--bg);
+  grid-column: 1 / 2; grid-row: 1 / 2;
+}
+.note-preview-pane .note-preview-header {
+  padding: 8px 12px; border-bottom: 1px solid var(--border); background: var(--bg-alt); font-weight: 700;
+}
+.note-preview-pane .note-preview-body {
+  overflow-y: auto; overflow-x: hidden; padding: 8px; display: flex; align-items: flex-start; justify-content: center;
+  min-height: 0; /* flexbox에서 스크롤이 제대로 작동하도록 */
+}
+.note-preview-pane img {
+  max-width: 100%; height: auto; display: block;
+  min-height: 0; /* flexbox에서 이미지가 컨테이너를 넘지 않도록 */
+}
+
+.note-preview-placeholder {
+  margin: 24px 8px; color: var(--muted); font-size: 14px; text-align: center; width: 100%;
+}
+
+.note-embed-root iframe#noteFrame { width: 100%; height: 100%; border: 0; grid-column: 2 / 3; grid-row: 1 / 2; }
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .note-dock .note-embed-root { 
+    grid-template-columns: 1fr; 
+    grid-template-rows: minmax(200px, 40%) 1fr;
+  }
+  .note-preview-pane {
+    grid-column: 1 / 2; 
+    grid-row: 1 / 2;
+  }
+  .note-embed-root iframe#noteFrame { 
+    grid-column: 1 / 2; 
+    grid-row: 2 / 3; 
+  }
+  .note-preview-pane .note-preview-body {
+    max-height: 200px; /* 모바일에서 미리보기 영역 높이 제한 */
+  }
+}
+
+

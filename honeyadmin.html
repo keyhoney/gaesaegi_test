@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 - 개새기</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .admin-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .admin-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .data-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .data-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .user-email {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        
+        .refresh-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .access-denied {
+            text-align: center;
+            padding: 100px 20px;
+            color: #c62828;
+        }
+        
+                 .access-denied h1 {
+             font-size: 2em;
+             margin-bottom: 20px;
+         }
+         
+         .coin-give-form {
+             display: flex;
+             gap: 10px;
+             align-items: center;
+             margin-top: 10px;
+         }
+         
+         .coin-give-form input[type="number"] {
+             width: 80px;
+             padding: 5px;
+             border: 1px solid #ddd;
+             border-radius: 4px;
+         }
+         
+         .coin-give-form input[type="text"] {
+             flex: 1;
+             padding: 5px;
+             border: 1px solid #ddd;
+             border-radius: 4px;
+         }
+         
+         .coin-give-btn {
+             background: #28a745;
+             color: white;
+             border: none;
+             padding: 5px 10px;
+             border-radius: 4px;
+             cursor: pointer;
+             font-size: 12px;
+         }
+         
+         .coin-give-btn:hover {
+             background: #218838;
+         }
+         
+         .coin-give-btn:disabled {
+             background: #6c757d;
+             cursor: not-allowed;
+         }
+         
+         .coin-give-section {
+             margin-top: 15px;
+         }
+         
+         .coin-give-form-large {
+             display: flex;
+             gap: 15px;
+             align-items: center;
+             flex-wrap: wrap;
+             padding: 20px;
+             background: #f8f9fa;
+             border-radius: 8px;
+             border: 1px solid #dee2e6;
+         }
+         
+         .form-group {
+             display: flex;
+             flex-direction: column;
+             gap: 5px;
+         }
+         
+         .form-group label {
+             font-weight: 600;
+             color: #333;
+             font-size: 14px;
+         }
+         
+         .form-group input {
+             padding: 8px 12px;
+             border: 1px solid #ddd;
+             border-radius: 4px;
+             font-size: 14px;
+         }
+         
+         .coin-give-btn-large {
+             background: #28a745;
+             color: white;
+             border: none;
+             padding: 10px 20px;
+             border-radius: 4px;
+             cursor: pointer;
+             font-size: 14px;
+             font-weight: 600;
+             margin-top: 20px;
+         }
+         
+         .coin-give-btn-large:hover {
+             background: #218838;
+         }
+         
+         .coin-give-btn-large:disabled {
+             background: #6c757d;
+             cursor: not-allowed;
+         }
+         
+         .winner-row {
+             background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+             font-weight: 600;
+         }
+         
+         .winner-row-1 { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); }
+         .winner-row-2 { background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%); }
+         .winner-row-3 { background: linear-gradient(135deg, #cd7f32 0%, #daa520 100%); }
+         .winner-row-4 { background: linear-gradient(135deg, #87ceeb 0%, #b0e0e6 100%); }
+         .winner-row-5 { background: linear-gradient(135deg, #98fb98 0%, #90ee90 100%); }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>🔐 관리자 페이지</h1>
+            <p>개새기 서비스 관리자 전용 페이지</p>
+        </div>
+        
+        <div id="accessDenied" class="access-denied" style="display: none;">
+            <h1>🚫 접근 권한이 없습니다</h1>
+            <p>이 페이지는 관리자만 접근할 수 있습니다.</p>
+            <div id="authStatus" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                <h3>인증 상태</h3>
+                <p id="authInfo">확인 중...</p>
+                <button onclick="checkAuthStatus()" style="margin-top: 10px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">인증 상태 확인</button>
+            </div>
+        </div>
+        
+        <div id="adminContent" style="display: none;">
+            <div style="margin-bottom: 20px;">
+                <button class="refresh-btn" onclick="refreshAllData()">🔄 데이터 새로고침</button>
+                <button onclick="checkAuthStatus()" style="margin-left: 10px; padding: 8px 16px; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer;">🔐 인증 상태 확인</button>
+            </div>
+            
+            <div class="admin-section">
+                <h2>🎰 로또 당첨 기록</h2>
+                <div id="lotteryWinnersLoading" class="loading">데이터를 불러오는 중...</div>
+                <div id="lotteryWinnersError" class="error" style="display: none;"></div>
+                <table id="lotteryWinnersTable" class="data-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>등수</th>
+                            <th>사용자</th>
+                            <th>선택 번호</th>
+                            <th>당첨 번호</th>
+                            <th>보너스</th>
+                            <th>맞은 개수</th>
+                            <th>당첨일시</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lotteryWinnersBody"></tbody>
+                </table>
+            </div>
+            
+            <div class="admin-section">
+                <h2>💰 반/번호별 코인 지급</h2>
+                <div class="coin-give-section">
+                    <div class="coin-give-form-large">
+                        <div class="form-group">
+                            <label for="classNameInput">반:</label>
+                            <input type="text" id="classNameInput" placeholder="예: 1반, 2반, 3반" style="width: 100px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="studentNumberInput">번호:</label>
+                            <input type="number" id="studentNumberInput" placeholder="번호" min="1" max="50" style="width: 80px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="coinAmountInput">코인:</label>
+                            <input type="number" id="coinAmountInput" placeholder="코인" min="1" max="100" style="width: 80px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="coinReasonInput">사유:</label>
+                            <input type="text" id="coinReasonInput" placeholder="사유 (예: 수업 중 활발한 참여)" style="width: 300px;">
+                        </div>
+                        <button onclick="giveCoinByClassNumber()" class="coin-give-btn-large">코인 지급</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="admin-section">
+                <h2>🎁 코인 지급 내역</h2>
+                <div id="coinHistoryLoading" class="loading">데이터를 불러오는 중...</div>
+                <div id="coinHistoryError" class="error" style="display: none;"></div>
+                <table id="coinHistoryTable" class="data-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>받은 학생</th>
+                            <th>지급한 코인</th>
+                            <th>사유</th>
+                            <th>지급일시</th>
+                        </tr>
+                    </thead>
+                    <tbody id="coinHistoryBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script src="firebase-config.js"></script>
+    <script src="firebase-data.js"></script>
+    <script src="honeyadmin.js"></script>
+</body>
+</html>

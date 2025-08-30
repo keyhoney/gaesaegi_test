@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GSG - 피드백</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="favorites.css" />
+    <link rel="stylesheet" href="individual-study.css" />
+    <link rel="icon" href="/favicon.ico" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">본문 바로가기</a>
+    <header class="site-header" role="banner">
+      <div class="container nav-container">
+        <div class="brand" aria-label="GSG 홈">
+          <a href="index.html" class="brand" style="text-decoration:none; color:inherit">
+            <span class="logo" aria-hidden="true"><img src="img/gsg-icon.png" alt="GSG 로고" width="60" height="60"/></span>
+            <span class="brand-name">GSG</span>
+          </a>
+        </div>
+        <nav class="site-nav" aria-label="상단 메뉴">
+          <ul>
+            <li><a href="index.html" class="btn ghost small">메인</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="page" tabindex="-1">
+      <section class="section">
+        <div class="container">
+          <h1>피드백</h1>
+
+          <div class="grid" style="grid-template-columns: 360px 1fr; gap: 12px; align-items: start;">
+            <aside class="card">
+              <h3>피드백 작성</h3>
+              <div class="login-form">
+                <div class="field"><label for="fbTitle">제목(선택)</label><input id="fbTitle" type="text" placeholder="제목을 입력하세요"/></div>
+                <div class="field"><label for="fbCategory">카테고리</label>
+                  <select id="fbCategory">
+                    <option value="bug">오류</option>
+                    <option value="improve">개선</option>
+                    <option value="feature">기능 요청</option>
+                  </select>
+                </div>
+                <div class="field"><label for="fbBody">설명</label><input id="fbBody" type="text" placeholder="상세 내용을 입력하세요"/></div>
+                <div class="actions"><button id="postFeedback" class="btn primary">등록</button></div>
+                <p id="fbMsg" class="form-feedback" aria-live="polite"></p>
+              </div>
+
+              <h3 style="margin-top:12px;">검색/필터</h3>
+              <div class="filters" role="group" aria-label="피드백 검색 및 필터">
+                <div class="field">
+                  <label for="searchBox">검색</label>
+                  <input id="searchBox" type="text" placeholder="제목/내용 검색" aria-label="피드백 검색"/>
+                </div>
+                <div class="field">
+                  <label for="filterCategory">카테고리</label>
+                  <select id="filterCategory" aria-label="카테고리 필터">
+                    <option value="">전체</option>
+                    <option value="bug">오류</option>
+                    <option value="improve">개선</option>
+                    <option value="feature">기능 요청</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="filterStatus">상태</label>
+                  <select id="filterStatus" aria-label="상태 필터">
+                    <option value="">전체</option>
+                    <option value="open">접수</option>
+                    <option value="answered">응답</option>
+                    <option value="resolved">해결</option>
+                  </select>
+                </div>
+              </div>
+            </aside>
+
+            <section class="card">
+              <h3>피드백 목록</h3>
+              <div id="feedbackList" class="list-grid"></div>
+              <article class="card" style="margin-top:12px;" id="detailCard" hidden>
+                <h3 id="dTitle">피드백</h3>
+                <div id="dMeta" class="muted"></div>
+                <div id="dBody" style="margin:6px 0 10px;"></div>
+                <div id="dStatus" class="muted"></div>
+                <div class="actions" id="adminActions" style="margin-top:8px;"></div>
+                <hr style="border:none; border-top:1px solid var(--border); margin:12px 0;"/>
+                <h3>관리자 답변</h3>
+                <div id="replies" class="list-grid"></div>
+                <form id="replyForm" class="answer-form" style="margin-top:8px;" hidden>
+                  <div class="row">
+                    <div class="field flex-1"><label for="replyInput">답변 작성</label><input id="replyInput" type="text" autocomplete="off" placeholder="답변을 입력하세요"/></div>
+                    <div class="actions"><button type="submit" class="btn primary">등록</button></div>
+                  </div>
+                </form>
+                <p id="replyMsg" class="form-feedback" aria-live="polite"></p>
+              </article>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+    <script src="firebase-config.js" defer></script>
+    <script src="firebase-data.js" defer></script>
+    <script src="app.js" defer></script>
+    <script src="feedback.js" defer></script>
+  </body>
+  </html>
+
+

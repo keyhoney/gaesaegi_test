@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GSG - 필기 앱</title>
+    <meta name="description" content="GSG 필기 앱" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="note.css" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- Fabric.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">본문 바로가기</a>
+    <header class="site-header" role="banner">
+      <div class="container nav-container">
+        <div class="brand" aria-label="GSG 홈">
+          <a href="index.html" class="brand" style="text-decoration:none; color:inherit">
+            <span class="logo" aria-hidden="true"><img src="img/gsg-icon.png" alt="GSG 로고" width="60" height="60"/></span>
+            <span class="brand-name">GSG</span>
+          </a>
+        </div>
+        <nav class="site-nav" aria-label="상단 메뉴">
+          <ul>
+            <li><a href="index.html" class="btn ghost small">메인</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="page" tabindex="-1">
+      <section class="section">
+        <div class="container">
+          <h1 id="pageTitle">필기 앱</h1>
+
+          <div class="card note-card" role="application" aria-label="필기 캔버스">
+            <div class="note-toolbar" role="toolbar" aria-label="필기 도구 모음">
+              <div class="toolbar-group">
+                <label class="sr-only" for="noteName">노트 이름</label>
+                <input id="noteName" class="input" type="text" placeholder="노트 이름" aria-label="노트 이름" />
+                <button id="newNoteBtn" class="btn primary small" type="button">새 노트</button>
+                <button id="saveNoteBtn" class="btn primary small" type="button">저장</button>
+                <button id="deleteNoteBtn" class="btn ghost small" type="button">삭제</button>
+                <label class="sr-only" for="noteList">저장된 노트</label>
+                <select id="noteList" class="select" aria-label="저장된 노트 불러오기"></select>
+              </div>
+
+              <div class="toolbar-group">
+                <button class="btn ghost small tool" data-tool="select" type="button" aria-pressed="false" title="선택(V)">선택</button>
+                <button class="btn ghost small tool" data-tool="pan" type="button" aria-pressed="false" title="이동(Space)">이동</button>
+                <button class="btn ghost small tool active" data-tool="pen" type="button" aria-pressed="true" title="펜(B)">펜</button>
+                <button class="btn ghost small tool" data-tool="highlighter" type="button" aria-pressed="false" title="형광펜(H)">형광펜</button>
+                <button class="btn ghost small tool" data-tool="line" type="button" aria-pressed="false" title="직선(L)">직선</button>
+                <button class="btn ghost small tool" data-tool="rect" type="button" aria-pressed="false" title="사각형(R)">사각형</button>
+                <button class="btn ghost small tool" data-tool="ellipse" type="button" aria-pressed="false" title="원(O)">원</button>
+                <button class="btn ghost small tool" data-tool="text" type="button" aria-pressed="false" title="텍스트(T)">텍스트</button>
+                <button class="btn ghost small tool" data-tool="eraser" type="button" aria-pressed="false" title="지우개(E)">지우개</button>
+                <button id="deleteSelectedBtn" class="btn ghost small" type="button" title="선택 삭제(Delete)">선택 삭제</button>
+              </div>
+
+              <div class="toolbar-group">
+                <label for="penColor">색상</label>
+                <input id="penColor" type="color" value="#000000" aria-label="펜 색상" />
+                <label for="penSize">두께</label>
+                <select id="penSize" aria-label="펜 두께">
+                  <option value="2">2px</option>
+                  <option value="4" selected>4px</option>
+                  <option value="8">8px</option>
+                  <option value="12">12px</option>
+                  <option value="18">18px</option>
+                </select>
+              </div>
+
+              <div class="toolbar-group">
+                <button id="undoBtn" class="btn ghost small" type="button" title="실행 취소(Ctrl+Z)">실행 취소</button>
+                <button id="redoBtn" class="btn ghost small" type="button" title="다시 실행(Ctrl+Y)">다시 실행</button>
+              </div>
+
+              <div class="toolbar-group">
+                <label for="bgSelect">배경</label>
+                <select id="bgSelect" aria-label="배경 선택">
+                  <option value="none">없음</option>
+                  <option value="ruled">줄지</option>
+                  <option value="grid">격자</option>
+                </select>
+                <button id="insertImageBtn" class="btn ghost small" type="button">이미지 삽입</button>
+                <input id="imageFile" type="file" accept="image/*" hidden />
+              </div>
+
+              <div class="toolbar-group">
+                <button id="zoomOutBtn" class="btn ghost small" type="button" title="축소(-)">-</button>
+                <button id="zoomResetBtn" class="btn ghost small" type="button" title="원래 크기(0)">100%</button>
+                <button id="zoomInBtn" class="btn ghost small" type="button" title="확대(+)">+</button>
+              </div>
+
+              <div class="toolbar-group">
+                <button id="exportPngBtn" class="btn ghost small" type="button">PNG 저장</button>
+                <button id="exportJsonBtn" class="btn ghost small" type="button">노트 내보내기</button>
+                <button id="importJsonBtn" class="btn ghost small" type="button">노트 불러오기</button>
+                <input id="jsonFile" type="file" accept="application/json" hidden />
+              </div>
+            </div>
+
+            <div class="note-stage">
+              <div class="canvas-container">
+                <canvas id="noteCanvas"></canvas>
+              </div>
+            </div>
+
+            <div class="note-status" aria-live="polite">
+              <span id="statusTool">도구: 펜</span>
+              <span class="divider">|</span>
+              <span id="statusZoom">줌: 100%</span>
+              <span class="divider">|</span>
+              <span id="statusHint">단축키: V 선택, B 펜, H 형광펜, L 직선, R 사각형, O 원, T 텍스트, E 지우개, Space 이동</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Toast container (로컬 토스트 또는 전역 showToast 사용) -->
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="note.js" defer></script>
+    <script>
+      // 임베드 모드 감지 및 UI 조정
+      if (window.location.search.includes('embed=1')) {
+        const pageTitle = document.getElementById('pageTitle');
+        if (pageTitle) pageTitle.style.display = 'none';
+        
+        // 헤더 숨기기
+        const header = document.querySelector('.site-header');
+        if (header) header.style.display = 'none';
+        
+        // body 패딩 조정
+        document.body.style.paddingTop = '0';
+        
+        // 카드 스타일 조정 (임베드에서는 더 컴팩트하게)
+        const noteCard = document.querySelector('.note-card');
+        if (noteCard) {
+          noteCard.style.borderRadius = '0';
+          noteCard.style.boxShadow = 'none';
+        }
+      }
+    </script>
+  </body>
+  </html>
+
+

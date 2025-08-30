@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GSG - 코인 로또</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="/favicon.ico" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">본문 바로가기</a>
+    <header class="site-header" role="banner">
+      <div class="container nav-container">
+        <div class="brand" aria-label="GSG 홈">
+          <a href="index.html" class="brand" style="text-decoration:none; color:inherit">
+            <span class="logo" aria-hidden="true"><img src="img/gsg-icon.png" alt="GSG 로고" width="60" height="60"/></span>
+            <span class="brand-name">GSG</span>
+          </a>
+        </div>
+        <nav class="site-nav" aria-label="상단 메뉴">
+          <ul>
+            <li><a href="index.html" class="btn ghost small">메인</a></li>
+            <li><a href="wallet.html" class="btn ghost small">지갑</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="page" tabindex="-1">
+      <section class="section">
+        <div class="container">
+          <h1>코인 로또</h1>
+          <!-- 당첨 상품 안내 섹션 (상단) -->
+          <article class="card" style="margin-bottom: 12px;">
+            <h3>당첨 상품 안내</h3>
+            <div class="prize-info">
+              <div class="prize-item">
+                <span class="prize-rank">1등</span>
+                <span class="prize-desc">치킨 한 마리</span>
+              </div>
+              <div class="prize-item">
+                <span class="prize-rank">2등</span>
+                <span class="prize-desc">엽기떡볶이 한 통</span>
+              </div>
+              <div class="prize-item">
+                <span class="prize-rank">3등</span>
+                <span class="prize-desc">인근 카페 음료 1잔</span>
+              </div>
+              <div class="prize-item">
+                <span class="prize-rank">4등</span>
+                <span class="prize-desc">과자 한 봉지</span>
+              </div>
+              <div class="prize-item">
+                <span class="prize-rank">5등</span>
+                <span class="prize-desc">개별 포장 스낵</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- 번호 선택 및 당첨 결과 섹션 -->
+          <div class="grid" style="grid-template-columns: 1fr 1fr; gap:12px; align-items:start;">
+            <article class="card">
+              <h3>번호 선택</h3>
+              <div class="muted" style="margin-bottom:8px;">1~20 중 6개 선택</div>
+              <div id="numberGrid" class="lottery-number-grid"></div>
+              <div style="display:flex; gap:8px; margin-top:8px;">
+                <button id="autoPick" class="btn small">자동 선택</button>
+                <button id="clearPick" class="btn small">초기화</button>
+              </div>
+              <div style="margin-top:8px;">선택: <strong id="picked">-</strong></div>
+              <div style="display:flex; gap:8px; align-items:center; margin-top:12px;">
+                <div>보유 코인: <strong id="coinBal">0</strong></div>
+                <div class="muted">(1회 1코인)</div>
+                <div style="margin-left:auto;"><button id="buyBtn" class="btn primary">구매</button></div>
+              </div>
+              <p id="buyMsg" class="form-feedback" aria-live="polite"></p>
+            </article>
+            <article class="card">
+              <h3>최근 당첨 결과</h3>
+              <div>구매일자: <strong id="drawId">-</strong></div>
+              <div style="margin-top:8px;">당첨 번호: <strong id="drawNums">-</strong></div>
+              <div>보너스: <strong id="drawBonus">-</strong></div>
+              <div style="margin-top:8px;">내 번호: <strong id="myNums">-</strong></div>
+              <div>일치 개수: <strong id="hitCount">-</strong></div>
+              <div>등수: <strong id="rank">-</strong></div>
+            </article>
+          </div>
+
+          <div class="grid" style="grid-template-columns: 1fr 1fr; gap:12px; margin-top:12px;">
+            <article class="card">
+              <h3>내 구매 내역</h3>
+              <div id="myTickets" class="list-grid"></div>
+            </article>
+            <article class="card">
+              <h3>로또 통계</h3>
+              <div id="stats" class="grid" style="grid-template-columns: repeat(3, minmax(0,1fr)); gap:8px;"></div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+    <script src="firebase-config.js" defer></script>
+    <script src="firebase-data.js" defer></script>
+    <script src="app.js" defer></script>
+    <script src="lottery.js" defer></script>
+  </body>
+  </html>
+
+

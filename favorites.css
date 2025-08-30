@@ -1,0 +1,15 @@
+.tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.tab { border: 1px solid var(--border); background: var(--card); border-radius: 999px; padding: 8px 12px; cursor: pointer; }
+.tab.active { border-color: var(--primary); }
+.panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 12px; }
+.list-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.row { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.row .line { display: flex; align-items: center; gap: 12px; }
+.row .line.top .meta { width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: block; }
+.row .line.bottom .id { min-width: 140px; }
+.row .line.bottom .diff { min-width: 90px; color: var(--muted); }
+.row .line.bottom .actions { margin-left: auto; display: flex; gap: 8px; }
+.row a { text-decoration: none; color: var(--accent); }
+@media (max-width: 900px) { .list-grid { grid-template-columns: 1fr; } .row { flex-wrap: wrap; } .row .meta { flex-basis: 100%; } }
+
+
