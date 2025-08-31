@@ -260,18 +260,32 @@
   }
 
   async function grantExamReward() {
+    console.log('모의고사 보상 지급 시작');
+    
     if (!canReward()) {
+      console.log('하루 1회 제한으로 인해 보상 지급 불가');
       return `보상은 하루에 한 번만 지급됩니다. 내일 다시 시도해 주세요.`;
     }
     
-    // 코인 1개 지급
-    const result = await window.firebaseData?.addCoins?.(1);
+    console.log('Firebase 데이터 객체 확인:', !!window.firebaseData);
+    console.log('addCoins 함수 확인:', !!window.firebaseData?.addCoins);
     
-    if (result && result.applied > 0) {
-      localStorage.setItem(STORAGE.lastExamRewardDate, todayKey());
-      return `모의고사 완료! 코인 1개를 획득했습니다! 🎉`;
-    } else {
-      return `코인 지급에 실패했습니다. 잠시 후 다시 시도해 주세요.`;
+    // 코인 1개 지급
+    try {
+      const result = await window.firebaseData?.addCoins?.(1);
+      console.log('addCoins 결과:', result);
+      
+      if (result && result.applied > 0) {
+        localStorage.setItem(STORAGE.lastExamRewardDate, todayKey());
+        console.log('보상 지급 성공, 로컬 스토리지 업데이트');
+        return `모의고사 완료! 코인 1개를 획득했습니다! 🎉`;
+      } else {
+        console.log('보상 지급 실패 - applied가 0이거나 result가 없음');
+        return `코인 지급에 실패했습니다. 잠시 후 다시 시도해 주세요.`;
+      }
+    } catch (error) {
+      console.error('addCoins 호출 중 에러:', error);
+      return `코인 지급 중 오류가 발생했습니다: ${error.message}`;
     }
   }
 
@@ -303,7 +317,15 @@
         
         // 보상이 실제로 지급되었는지 확인하여 토스트 메시지 표시
         if (rewardMsg.includes('코인 1개를 획득했습니다')) {
-          window.showToast && window.showToast('모의고사 완료! 코인 1개를 획득했습니다!', 'success');
+          console.log('토스트 메시지 표시 시도');
+          if (window.showToast) {
+            window.showToast('모의고사 완료! 코인 1개를 획득했습니다!', 'success');
+            console.log('토스트 메시지 표시됨');
+          } else {
+            console.log('showToast 함수가 없음');
+          }
+        } else {
+          console.log('보상 지급 실패로 토스트 메시지 표시 안함:', rewardMsg);
         }
       } catch (error) {
         console.error('모의고사 보상 지급 실패:', error);
