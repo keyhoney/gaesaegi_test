@@ -53,6 +53,8 @@
   margin-bottom: 16px;
   box-shadow: 0 2px 8px rgba(139, 0, 0, 0.15);
   border-left: 4px solid #ff6b6b;
+  font-weight: bold;
+  font-size: 14px;
 }
 
 .cooldown-info {

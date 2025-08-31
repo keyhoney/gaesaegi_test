@@ -83,6 +83,8 @@
       const cooldownInfo = await checkQuestionCooldown(qid);
       const cooldownElement = document.getElementById('cooldownDisplay');
       
+      console.log('쿨다운 체크:', qid, cooldownInfo); // 디버깅용
+      
       if (cooldownElement) {
         if (cooldownInfo.isInCooldown) {
           const remainingTime = formatRemainingTime(cooldownInfo.remainingTime);
@@ -93,9 +95,13 @@
             </div>
           `;
           cooldownElement.style.display = 'block';
+          console.log('쿨다운 표시됨:', remainingTime); // 디버깅용
         } else {
           cooldownElement.style.display = 'none';
+          console.log('쿨다운 표시 숨김'); // 디버깅용
         }
+      } else {
+        console.error('cooldownDisplay 요소를 찾을 수 없음'); // 디버깅용
       }
       
       return cooldownInfo;
@@ -219,15 +225,17 @@
         // 쿨다운이 끝난 새로운 정답인 경우에만 마지막 정답 시간 저장
         await window.firebaseData?.saveQuestionLastCorrectTime?.(qid);
         
-        // 96시간 쿨다운이 끝난 문제들만 카운트
+        // 96시간 쿨다운이 끝난 문제들만 카운트 (쿨다운이 적용되지 않은 문제들)
         const allQuestionLastCorrectTimes = await window.firebaseData?.getAllQuestionLastCorrectTimes?.() || {};
         const now = new Date();
         const cooldownMs = COOLDOWN_HOURS * 60 * 60 * 1000;
         
+        // 96시간이 지난 문제들만 카운트 (쿨다운이 끝난 문제들)
         const eligibleQuestions = Object.entries(allQuestionLastCorrectTimes).filter(([questionId, lastCorrectTime]) => {
           if (!lastCorrectTime) return false;
           const lastCorrectDate = lastCorrectTime.toDate ? lastCorrectTime.toDate() : new Date(lastCorrectTime);
           const timeDiff = now.getTime() - lastCorrectDate.getTime();
+          // 96시간이 지난 문제들만 카운트 (쿨다운이 끝난 문제들)
           return timeDiff >= cooldownMs;
         }).map(([questionId]) => questionId);
         
@@ -260,15 +268,17 @@
   // 96시간 쿨다운 기반 현재 진행 상황 표시
   async function updateProgressDisplay() {
     try {
-      // 96시간 쿨다운이 끝난 문제들만 카운트
+      // 96시간 쿨다운이 끝난 문제들만 카운트 (쿨다운이 적용되지 않은 문제들)
       const allQuestionLastCorrectTimes = await window.firebaseData?.getAllQuestionLastCorrectTimes?.() || {};
       const now = new Date();
       const cooldownMs = COOLDOWN_HOURS * 60 * 60 * 1000;
       
+      // 96시간이 지난 문제들만 카운트 (쿨다운이 끝난 문제들)
       const eligibleQuestions = Object.entries(allQuestionLastCorrectTimes).filter(([questionId, lastCorrectTime]) => {
         if (!lastCorrectTime) return false;
         const lastCorrectDate = lastCorrectTime.toDate ? lastCorrectTime.toDate() : new Date(lastCorrectTime);
         const timeDiff = now.getTime() - lastCorrectDate.getTime();
+        // 96시간이 지난 문제들만 카운트 (쿨다운이 끝난 문제들)
         return timeDiff >= cooldownMs;
       }).map(([questionId]) => questionId);
       
@@ -563,6 +573,12 @@
     // 쿨다운 상태 업데이트
     try {
       await updateCooldownDisplay(currentQuestion.id);
+      
+      // 테스트용: 쿨다운 표시가 제대로 작동하는지 확인
+      const cooldownElement = document.getElementById('cooldownDisplay');
+      if (cooldownElement) {
+        console.log('쿨다운 요소 존재:', cooldownElement.style.display);
+      }
     } catch (error) {
       console.error('쿨다운 상태 업데이트 실패:', error);
     }
