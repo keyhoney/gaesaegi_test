@@ -36,6 +36,74 @@
   
   // 보상 시스템 상수
   const DAILY_QUESTIONS_FOR_COIN = 10; // 하루 10문제 풀이 시 코인 1개 지급
+  const COOLDOWN_HOURS = 96; // 96시간(4일) 쿨다운
+
+  // 96시간 쿨다운 체크 함수
+  async function checkQuestionCooldown(qid) {
+    try {
+      const lastCorrectTime = await window.firebaseData?.getQuestionLastCorrectTime?.(qid);
+      if (!lastCorrectTime) return { isInCooldown: false, remainingTime: 0 };
+      
+      const lastCorrectDate = lastCorrectTime.toDate ? lastCorrectTime.toDate() : new Date(lastCorrectTime);
+      const now = new Date();
+      const timeDiff = now.getTime() - lastCorrectDate.getTime();
+      const cooldownMs = COOLDOWN_HOURS * 60 * 60 * 1000;
+      
+      if (timeDiff < cooldownMs) {
+        const remainingMs = cooldownMs - timeDiff;
+        return { isInCooldown: true, remainingTime: remainingMs };
+      }
+      
+      return { isInCooldown: false, remainingTime: 0 };
+    } catch (error) {
+      console.error('쿨다운 체크 중 오류:', error);
+      return { isInCooldown: false, remainingTime: 0 };
+    }
+  }
+
+  // 남은 시간을 읽기 쉬운 형태로 변환
+  function formatRemainingTime(ms) {
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 24) {
+      const days = Math.floor(hours / 24);
+      const remainingHours = hours % 24;
+      return `${days}일 ${remainingHours}시간 ${minutes}분`;
+    } else if (hours > 0) {
+      return `${hours}시간 ${minutes}분`;
+    } else {
+      return `${minutes}분`;
+    }
+  }
+
+  // 쿨다운 상태 표시 업데이트
+  async function updateCooldownDisplay(qid) {
+    try {
+      const cooldownInfo = await checkQuestionCooldown(qid);
+      const cooldownElement = document.getElementById('cooldownDisplay');
+      
+      if (cooldownElement) {
+        if (cooldownInfo.isInCooldown) {
+          const remainingTime = formatRemainingTime(cooldownInfo.remainingTime);
+          cooldownElement.innerHTML = `
+            <div class="cooldown-info">
+              <span class="cooldown-text">⏰ 이 문제는 ${remainingTime} 후에 다시 카운팅됩니다</span>
+              <span class="cooldown-detail">(96시간 쿨다운 적용)</span>
+            </div>
+          `;
+          cooldownElement.style.display = 'block';
+        } else {
+          cooldownElement.style.display = 'none';
+        }
+      }
+      
+      return cooldownInfo;
+    } catch (error) {
+      console.error('쿨다운 표시 업데이트 중 오류:', error);
+      return { isInCooldown: false, remainingTime: 0 };
+    }
+  }
 
   // 로컬 저장 제거: 즐겨찾기/오답/로그는 전부 Firebase로
 
@@ -139,39 +207,47 @@
     $questionHistory.innerHTML = html;
   }
 
-  // 하루 정답 문제 수 추적 및 코인 지급
+  // 96시간 쿨다운 기반 정답 문제 수 추적 및 코인 지급
   async function trackDailyQuestionsAndReward(qid, isCorrect) {
     try {
       const dateKey = await window.firebaseData?.getServerDateSeoulKey?.() || todayKey();
       
-      // 오늘 정답을 맞춘 문제들 목록 가져오기 (현재 문제 제외)
-      const finalAnswers = await window.firebaseData?.listFinalAnswers?.() || [];
-      const todayCorrectAnswers = finalAnswers.filter(answer => 
-        answer.date === dateKey && 
-        answer.correct === true && 
-        answer.id !== qid
-      );
+      // 96시간 쿨다운 체크
+      const cooldownInfo = await checkQuestionCooldown(qid);
       
-      // 중복 제거하여 고유한 정답 문제 수 계산
-      const uniqueCorrectQuestions = new Set(todayCorrectAnswers.map(answer => answer.id));
-      
-      // 현재 문제가 이미 오늘 정답을 맞춘 문제인지 확인
-      const isNewCorrectQuestion = !uniqueCorrectQuestions.has(qid);
-      
-      if (isCorrect && isNewCorrectQuestion) {
-        // 새로운 정답인 경우에만 카운트에 추가
-        uniqueCorrectQuestions.add(qid);
-        const totalUniqueCorrectQuestions = uniqueCorrectQuestions.size;
+      if (isCorrect && !cooldownInfo.isInCooldown) {
+        // 쿨다운이 끝난 새로운 정답인 경우에만 마지막 정답 시간 저장
+        await window.firebaseData?.saveQuestionLastCorrectTime?.(qid);
+        
+        // 96시간 쿨다운이 끝난 문제들만 카운트
+        const allQuestionLastCorrectTimes = await window.firebaseData?.getAllQuestionLastCorrectTimes?.() || {};
+        const now = new Date();
+        const cooldownMs = COOLDOWN_HOURS * 60 * 60 * 1000;
+        
+        const eligibleQuestions = Object.entries(allQuestionLastCorrectTimes).filter(([questionId, lastCorrectTime]) => {
+          if (!lastCorrectTime) return false;
+          const lastCorrectDate = lastCorrectTime.toDate ? lastCorrectTime.toDate() : new Date(lastCorrectTime);
+          const timeDiff = now.getTime() - lastCorrectDate.getTime();
+          return timeDiff >= cooldownMs;
+        }).map(([questionId]) => questionId);
+        
+        const totalEligibleQuestions = eligibleQuestions.length;
         
         // 10문제 단위로 코인 지급
-        if (totalUniqueCorrectQuestions % DAILY_QUESTIONS_FOR_COIN === 0) {
-          const coinsEarned = Math.floor(totalUniqueCorrectQuestions / DAILY_QUESTIONS_FOR_COIN);
+        if (totalEligibleQuestions % DAILY_QUESTIONS_FOR_COIN === 0) {
+          const coinsEarned = Math.floor(totalEligibleQuestions / DAILY_QUESTIONS_FOR_COIN);
           await window.firebaseData?.addCoins?.(coinsEarned);
           
-          const message = `축하합니다! 오늘 ${totalUniqueCorrectQuestions}번째 정답을 맞췄습니다. 코인 ${coinsEarned}개를 획득했습니다! 🎉`;
+          const message = `축하합니다! ${totalEligibleQuestions}번째 정답을 맞췄습니다. 코인 ${coinsEarned}개를 획득했습니다! 🎉`;
           toast(message, 'success');
           return message;
         }
+      } else if (isCorrect && cooldownInfo.isInCooldown) {
+        // 쿨다운 중인 경우 알림
+        const remainingTime = formatRemainingTime(cooldownInfo.remainingTime);
+        const message = `이 문제는 ${remainingTime} 후에 다시 카운팅됩니다. (96시간 쿨다운)`;
+        toast(message, 'info');
+        return message;
       }
       
       return null; // 보상 지급 없음
@@ -181,21 +257,22 @@
     }
   }
 
-  // 현재 진행 상황 표시
+  // 96시간 쿨다운 기반 현재 진행 상황 표시
   async function updateProgressDisplay() {
     try {
-      const dateKey = await window.firebaseData?.getServerDateSeoulKey?.() || todayKey();
+      // 96시간 쿨다운이 끝난 문제들만 카운트
+      const allQuestionLastCorrectTimes = await window.firebaseData?.getAllQuestionLastCorrectTimes?.() || {};
+      const now = new Date();
+      const cooldownMs = COOLDOWN_HOURS * 60 * 60 * 1000;
       
-      // 오늘 정답을 맞춘 문제들 목록 가져오기
-      const finalAnswers = await window.firebaseData?.listFinalAnswers?.() || [];
-      const todayCorrectAnswers = finalAnswers.filter(answer => 
-        answer.date === dateKey && 
-        answer.correct === true
-      );
+      const eligibleQuestions = Object.entries(allQuestionLastCorrectTimes).filter(([questionId, lastCorrectTime]) => {
+        if (!lastCorrectTime) return false;
+        const lastCorrectDate = lastCorrectTime.toDate ? lastCorrectTime.toDate() : new Date(lastCorrectTime);
+        const timeDiff = now.getTime() - lastCorrectDate.getTime();
+        return timeDiff >= cooldownMs;
+      }).map(([questionId]) => questionId);
       
-      // 중복 제거하여 고유한 정답 문제 수 계산
-      const uniqueCorrectQuestions = new Set(todayCorrectAnswers.map(answer => answer.id));
-      const currentCorrectCount = uniqueCorrectQuestions.size;
+      const currentCorrectCount = eligibleQuestions.length;
       
       // 진행 상황 계산
       const progress = currentCorrectCount % DAILY_QUESTIONS_FOR_COIN;
@@ -206,7 +283,7 @@
       if (progressElement) {
         progressElement.innerHTML = `
           <div class="progress-info">
-            <span class="progress-text">정답 진행: ${currentCorrectCount}문항 / 목표: ${DAILY_QUESTIONS_FOR_COIN}문항</span>
+            <span class="progress-text">정답 진행: ${currentCorrectCount}문항 / 목표: ${DAILY_QUESTIONS_FOR_COIN}문항 (96시간 쿨다운 적용)</span>
             <span class="progress-bar">
               <span class="progress-fill" style="width: ${(progress / DAILY_QUESTIONS_FOR_COIN) * 100}%"></span>
             </span>
@@ -482,6 +559,13 @@
     } catch (error) {
       console.error('진행 상황 업데이트 실패:', error);
     }
+    
+    // 쿨다운 상태 업데이트
+    try {
+      await updateCooldownDisplay(currentQuestion.id);
+    } catch (error) {
+      console.error('쿨다운 상태 업데이트 실패:', error);
+    }
   }
 
   function renderQuestion() {
@@ -564,6 +648,9 @@
     
     // 진행 상황 업데이트
     await updateProgressDisplay();
+    
+    // 쿨다운 상태 업데이트
+    await updateCooldownDisplay(currentQuestion.id);
 
     // 최종 제출 답안을 answers/{qid}로 저장(과목 필터 정확도를 위해 메타 포함)
     try {

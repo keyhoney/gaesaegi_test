@@ -98,13 +98,46 @@
     try {
       const { user, db } = await withUser();
       const { getDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-      const ref = doc(db, 'users', user.uid, 'submissions', qid);
+      const ref = doc(db, 'users', user.uid, 'answers', qid);
       const snap = await getDoc(ref);
-      if (!snap.exists()) return null;
-      const d = snap.data().lastAt;
-      return d?.toDate ? d.toDate() : (d ? new Date(d) : null);
+      return snap.exists() ? snap.data()?.submittedAt : null;
     } catch (_) { return null; }
-  }
+  },
+
+  // 문제별 마지막 정답 시간 저장
+  async function saveQuestionLastCorrectTime(qid) {
+    try {
+      const { user, db } = await withUser();
+      const { doc, setDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+      const ref = doc(db, 'users', user.uid, 'questionLastCorrect', qid);
+      await setDoc(ref, { lastCorrectAt: serverTimestamp() }, { merge: true });
+      return true;
+    } catch (_) { return false; }
+  },
+
+  // 문제별 마지막 정답 시간 조회
+  async function getQuestionLastCorrectTime(qid) {
+    try {
+      const { user, db } = await withUser();
+      const { getDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+      const ref = doc(db, 'users', user.uid, 'questionLastCorrect', qid);
+      const snap = await getDoc(ref);
+      return snap.exists() ? snap.data()?.lastCorrectAt : null;
+    } catch (_) { return null; }
+  },
+
+  // 모든 문제의 마지막 정답 시간 조회
+  async function getAllQuestionLastCorrectTimes() {
+    try {
+      const { user, db, collection, getDocs } = await withUser();
+      const snap = await getDocs(collection(db, 'users', user.uid, 'questionLastCorrect'));
+      const result = {};
+      snap.docs.forEach(doc => {
+        result[doc.id] = doc.data()?.lastCorrectAt;
+      });
+      return result;
+    } catch (_) { return {}; }
+  },
 
   async function setSubmissionNow(qid) {
     try {
@@ -114,7 +147,7 @@
       await setDoc(ref, { lastAt: serverTimestamp() }, { merge: true });
       return true;
     } catch (_) { return false; }
-  }
+  },
 
 
 
@@ -152,6 +185,9 @@
 
     getSubmissionAt,
     setSubmissionNow,
+    saveQuestionLastCorrectTime,
+    getQuestionLastCorrectTime,
+    getAllQuestionLastCorrectTimes,
     // 최종 제출 답안 저장(문항별 1문서)
     async setFinalAnswer(qid, payload) {
       try {
