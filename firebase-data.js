@@ -361,7 +361,6 @@
           else if (hit===5 && drawBonus && ticketNums.includes(drawBonus)) rank = 2;
           else if (hit===5) rank = 3;
           else if (hit===4) rank = 4;
-          else if (hit===3) rank = 5;
           
           attempts++;
         } while ((rank === 1 || rank === 2) && attempts < maxAttempts);
@@ -391,7 +390,7 @@
           const statsRef = doc(db, 'lottery', 'public', 'stats', 'main');
           await runTransaction(db, async (trx)=>{
             const s = await trx.get(statsRef);
-            const cur = s.exists()? s.data() : { totalTickets:0, w1:0,w2:0,w3:0,w4:0,w5:0 };
+            const cur = s.exists()? s.data() : { totalTickets:0, w1:0,w2:0,w3:0,w4:0 };
             const next = { ...cur, totalTickets: (cur.totalTickets||0)+1 };
             if (rank) next[`w${rank}`] = (cur[`w${rank}`]||0) + 1;
             trx.set(statsRef, next, { merge: true });
@@ -435,16 +434,16 @@
         const tickets = snap.docs.map(d => d.data());
         
         // 개인 통계 계산
-        const stats = { totalTickets: tickets.length, w1: 0, w2: 0, w3: 0, w4: 0, w5: 0 };
+        const stats = { totalTickets: tickets.length, w1: 0, w2: 0, w3: 0, w4: 0 };
         tickets.forEach(ticket => {
           const rank = Number(ticket.rank || 0);
-          if (rank >= 1 && rank <= 5) {
+          if (rank >= 1 && rank <= 4) {
             stats[`w${rank}`]++;
           }
         });
         
         return stats;
-      } catch (_) { return { totalTickets:0,w1:0,w2:0,w3:0,w4:0,w5:0 }; }
+      } catch (_) { return { totalTickets:0,w1:0,w2:0,w3:0,w4:0 }; }
     },
 
   };

@@ -418,9 +418,9 @@
     
     try {
       // 당첨 기록만 필터링 (rank가 있는 것만)
-      const winners = allLotteryTickets.filter(ticket => ticket.rank && ticket.rank >= 1 && ticket.rank <= 5);
+      const winners = allLotteryTickets.filter(ticket => ticket.rank && ticket.rank >= 1 && ticket.rank <= 4);
       
-      // 등수별로 정렬 (1등, 2등, 3등, 4등, 5등 순)
+      // 등수별로 정렬 (1등, 2등, 3등, 4등 순)
       const sortedWinners = winners.sort((a, b) => {
         // 먼저 등수로 정렬
         if (a.rank !== b.rank) {
